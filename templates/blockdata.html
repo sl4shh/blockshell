@@ -12,11 +12,88 @@
         <style>
             body {
             padding-top: 54px;
+            background: linear-gradient(180deg, #f3f6fb 0%, #eceff5 100%);
+            color: #111827;
             }
             @media (min-width: 992px) {
             body {
             padding-top: 56px;
             }
+            }
+            .payload-tabs {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            }
+            .payload-tabs .nav-item {
+            margin-bottom: -1px;
+            }
+            .payload-tabs .nav-link {
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            border-bottom: 0;
+            border-radius: 14px 14px 0 0;
+            background: #e9eef6;
+            color: #475569;
+            font-weight: 700;
+            padding: 0.7rem 1rem;
+            }
+            .payload-tabs .nav-link:hover {
+            color: #1d4ed8;
+            }
+            .payload-tabs .nav-link.active {
+            background: #fff;
+            color: #1d4ed8;
+            border-color: rgba(148, 163, 184, 0.28);
+            box-shadow: 0 -1px 0 #fff, 0 10px 24px rgba(15, 23, 42, 0.06);
+            }
+            .payload-panel {
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 16px;
+            padding: 1rem;
+            }
+            .payload-table-wrap {
+            background: #fff;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 14px;
+            overflow: hidden;
+            }
+            .payload-table {
+            margin-bottom: 0;
+            }
+            .payload-table th,
+            .payload-table td {
+            border-color: rgba(148, 163, 184, 0.14) !important;
+            padding: 0.85rem 1rem;
+            vertical-align: middle;
+            }
+            .payload-table th {
+            width: 28%;
+            background: #f8fafc !important;
+            color: #334155;
+            font-weight: 700;
+            }
+            .payload-table td {
+            background: #fff;
+            color: #111827;
+            word-break: break-word;
+            }
+            .payload-image-value {
+            font-family: Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            word-break: break-all;
+            }
+            .payload-code {
+            margin: 0;
+            padding: 1rem;
+            border-radius: 14px;
+            background: #0f172a;
+            color: #e2e8f0;
+            overflow-x: auto;
+            }
+            .payload-code code {
+            color: inherit;
+            font-size: 0.9rem;
+            line-height: 1.55;
             }
             footer {
             position: fixed;
@@ -67,7 +144,47 @@
                         </tr>
                         <tr>
                             <td><b>Data</b></td>
-                            <td>{{data['data']}}</td>
+                            <td>
+                                {% if payload_is_mapping %}
+                                <ul class="nav nav-tabs payload-tabs" id="payloadTabs" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="table-tab" data-toggle="tab" href="#payload-table" role="tab" aria-controls="payload-table" aria-selected="true">Table view</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="json-tab" data-toggle="tab" href="#payload-json" role="tab" aria-controls="payload-json" aria-selected="false">JSON code</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="payloadTabsContent">
+                                    <div class="tab-pane fade show active" id="payload-table" role="tabpanel" aria-labelledby="table-tab">
+                                        <div class="table-responsive payload-table-wrap">
+                                            <table class="table table-sm payload-table mb-0">
+                                                <tbody>
+                                                    {% for key, value in payload.items() %}
+                                                    <tr>
+                                                        <th scope="row" style="width: 30%;">{{ key }}</th>
+                                                        <td>
+                                                            {% if key == 'image' %}
+                                                            <div class="payload-image-value">
+                                                                {{ value }}
+                                                            </div>
+                                                            {% else %}
+                                                            {{ value }}
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="payload-json" role="tabpanel" aria-labelledby="json-tab">
+                                        <pre class="payload-code mb-0"><code>{{ payload_pretty }}</code></pre>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <pre class="payload-code mb-0"><code>{{ payload_pretty }}</code></pre>
+                                {% endif %}
+                            </td>
                         </tr>
                         <tr>
                             <td><b>Hash</b></td>

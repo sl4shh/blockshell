@@ -22,6 +22,7 @@ from blockchain.chain import Block, Blockchain
 # ==================================================
 SUPPORTED_COMMANDS = [
     'dotx',
+    'dotxcsv',
     'allblocks',
     'getblock',
     'help'
@@ -95,6 +96,23 @@ def dotx(cmd):
     print "Doing transaction..."
     coin.addBlock(Block(data=txData))
 
+def dotxcsv(cmd):
+    """
+        Do Transaction from CSV - Method to perform new transaction on blockchain from CSV file.
+        The first line is the header
+        The structure is converted to JSON
+    """
+    csvFile = cmd.split("dotxcsv ")[-1]
+    with open(csvFile, 'r') as f:
+        headerLine = f.readline()
+        for eachLine in f:
+            txData = eachLine.split(",")
+            print "Doing transaction..."
+            dictData = {}
+            for i in range(len(headerLine.split(","))):
+                dictData[headerLine.split(",")[i].strip()] = txData[i].strip()
+            coin.addBlock(Block(data=dictData))
+
 def allblocks(cmd):
     """
         Method to list all mined blocks.
@@ -121,6 +139,7 @@ def help(cmd):
     """
     print "Commands:"
     print "   dotx <transaction data>    Create new transaction"
+    print "   dotxcsv <csv file path>   Create new transactions from CSV file (First line should be header)"
     print "   allblocks                  Fetch all mined blocks in blockchain"
     print "   getblock <block hash>      Fetch information about particular block"
 
