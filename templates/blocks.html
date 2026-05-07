@@ -54,7 +54,21 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-10" style="margin-top:20px;">
-                    <h1><span class="badge badge-primary">Latest Blocks</span></h1>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h1><span class="badge badge-primary">Latest Blocks</span></h1>
+                        <form class="form-inline" method="get" action="/allblocks">
+                            <div class="form-group mr-2">
+                                <input type="text" name="field" class="form-control form-control-sm" placeholder="Field (eg. nom)" value="{{ search_field if search_active else '' }}">
+                            </div>
+                            <div class="form-group mr-2">
+                                <input type="text" name="value" class="form-control form-control-sm" placeholder="Value" value="{{ search_value if search_active else '' }}">
+                            </div>
+                            <button class="btn btn-sm btn-primary" type="submit">Search</button>
+                            {% if search_active %}
+                            <a href="/allblocks" class="btn btn-sm btn-outline-secondary ml-2">Clear</a>
+                            {% endif %}
+                        </form>
+                    </div>
                     {% for item in data -%}
                     <div class="alert alert-success" role="alert">
                         <a href="/block/{{item.hash}}" target="_blank">{{ item.hash }}</a>

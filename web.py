@@ -12,7 +12,7 @@ __maintainer__ = "Daxeel Soni"
 # ==================================================
 # ================= IMPORT MODULES =================
 # ==================================================
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import json
 
 # Init flask app
@@ -36,6 +36,40 @@ def normalize_block_payload(payload):
 
     return payload
 
+
+def get_field_value(obj, field):
+    """Return nested field value from dict using dot notation, or None."""
+    if not isinstance(obj, dict):
+        return None
+    parts = field.split('.') if field else []
+    cur = obj
+    for p in parts:
+        if isinstance(cur, dict) and p in cur:
+            cur = cur[p]
+        else:
+            return None
+    return cur
+
+
+def payload_matches(payload, field, value):
+    """Return True if payload contains value in given field (case-insensitive, substring)."""
+    if payload is None:
+        return False
+    # support searching in list of dicts
+    if isinstance(payload, list):
+        for item in payload:
+            v = get_field_value(item, field)
+            if v is not None and value.lower() in str(v).lower():
+                return True
+        return False
+
+    if isinstance(payload, dict):
+        v = get_field_value(payload, field)
+        return v is not None and value.lower() in str(v).lower()
+
+    return False
+
+
 @app.route('/')
 def index():
     return render_template('guide.html')
@@ -48,7 +82,21 @@ def mined_blocks():
     f = open("chain.txt", "r")
     data = json.loads(f.read())
     f.close()
-    return render_template('blocks.html', data=data)
+
+    field = request.args.get('field', '').strip()
+    value = request.args.get('value', '').strip()
+
+    search_active = False
+    if field and value:
+        search_active = True
+        filtered = []
+        for block in data:
+            payload = normalize_block_payload(block.get('data'))
+            if payload_matches(payload, field, value):
+                filtered.append(block)
+        data = filtered
+
+    return render_template('blocks.html', data=data, search_active=search_active, search_field=field, search_value=value)
 
 @app.route('/block/<hash>')
 def block(hash):
